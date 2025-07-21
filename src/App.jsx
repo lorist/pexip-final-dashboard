@@ -314,7 +314,14 @@ function App() {
       alert("Could not retrieve the current broadcast message.");
     }
   };
-
+  const handleClearBroadcastMessage = () => {
+    const apiPath = `/api/client/v2/conferences/${conferenceAlias}/set_message_text`;
+    
+    // Change the body to be an empty object
+    const body = {}; 
+    
+    pexipApiPostWithBody(apiPath, body);
+  };
   const DashboardContent = () => (
     <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
       <main className={`col-span-12 ${isChatOpen ? 'lg:col-span-8' : ''} flex flex-col gap-4`}>
@@ -323,7 +330,7 @@ function App() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <ConferenceActions isLocked={conferenceState.isLocked} onLockToggle={handleLockToggle} guestsMuted={conferenceState.guestsMuted} onMuteAllToggle={handleMuteAllToggle} onSetBroadcastMessage={handleSetBroadcastMessage} onGetBroadcastMessage={handleGetBroadcastMessage} guestsCanUnmute={conferenceState.guestsCanUnmute} onToggleGuestsCanUnmute={handleToggleGuestsCanUnmute} />
+            <ConferenceActions isLocked={conferenceState.isLocked} onLockToggle={handleLockToggle} guestsMuted={conferenceState.guestsMuted} onMuteAllToggle={handleMuteAllToggle} onSetBroadcastMessage={handleSetBroadcastMessage} onGetBroadcastMessage={handleGetBroadcastMessage} guestsCanUnmute={conferenceState.guestsCanUnmute} onToggleGuestsCanUnmute={handleToggleGuestsCanUnmute} onClearBroadcastMessage={handleClearBroadcastMessage} />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <LayoutControl availableLayouts={availableLayouts} activeLayout={activeLayout} onOverrideLayout={handleOverrideLayout} onResetLayout={handleResetLayout} />

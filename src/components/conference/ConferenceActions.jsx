@@ -9,8 +9,9 @@ const ConferenceActions = ({
   onMuteAllToggle,
   onSetBroadcastMessage,
   onGetBroadcastMessage,
-  guestsCanUnmute, // Add new prop
-  onToggleGuestsCanUnmute // Add new handler prop
+  onClearBroadcastMessage,
+  guestsCanUnmute,
+  onToggleGuestsCanUnmute
 }) => {
   const buttonClasses = "flex w-full justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90";
   const secondaryButtonClasses = `${buttonClasses} bg-graydark`;
@@ -25,15 +26,18 @@ const ConferenceActions = ({
       <button onClick={onMuteAllToggle} className={guestsMuted ? negativeButtonClasses : buttonClasses}>
         {guestsMuted ? 'Unmute All Guests' : 'Mute All Guests'}
       </button>
-      {/* New Toggle Button */}
       <button onClick={onToggleGuestsCanUnmute} className={guestsCanUnmute ? positiveButtonClasses : negativeButtonClasses}>
         {guestsCanUnmute ? 'Guests Can Unmute' : 'Guests Cannot Unmute'}
       </button>
       <button onClick={onSetBroadcastMessage} className={secondaryButtonClasses}>
-        Set Broadcast Message
+        Set Message
       </button>
       <button onClick={onGetBroadcastMessage} className={secondaryButtonClasses}>
-        Get Broadcast Message
+        Get Message
+      </button>
+      {/* New Button */}
+      <button onClick={onClearBroadcastMessage} className={secondaryButtonClasses}>
+        Clear Message
       </button>
     </div>
   );
