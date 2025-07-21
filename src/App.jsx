@@ -38,10 +38,6 @@ function App() {
   const eventSourceRef = useRef(null);
 
   useEffect(() => {
-    document.body.classList.add('dark');
-  }, []);
-
-  useEffect(() => {
     const handleBeforeUnload = () => {
       const { token: currentToken, conferenceAlias: currentConference, pin: currentPin } = appStateRef.current;
       if (!currentToken || !currentConference) return;
@@ -352,6 +348,7 @@ function App() {
         {/* The smaller control panels are now in a grid below the roster */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Conference Actions</h3>
             <ConferenceActions
               isLocked={conferenceState.isLocked}
               onLockToggle={handleLockToggle}
@@ -365,6 +362,7 @@ function App() {
             />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Layout Control</h3>
             <LayoutControl
               availableLayouts={availableLayouts}
               activeLayout={activeLayout}
@@ -373,13 +371,15 @@ function App() {
             />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Layout Transformation</h3>
             <TransformLayoutForm
-              availableLayouts={availableLayouts}
-              onTransformLayout={handleTransformLayout}
-              onResetLayout={handleResetTransformLayout}
+                availableLayouts={availableLayouts}
+                onTransformLayout={handleTransformLayout}
+                onResetLayout={handleResetTransformLayout}
             />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Pinning Configurations</h3>
             <PinningConfigForm
               availableConfigs={availablePinningConfigs}
               activeConfig={activePinningConfig}
@@ -388,6 +388,7 @@ function App() {
             />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Dial Out</h3>
             <DialOutForm onDialOut={handleDialOut} />
           </div>
         </div>

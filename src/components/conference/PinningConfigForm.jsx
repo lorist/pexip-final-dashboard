@@ -30,7 +30,7 @@ const PinningConfigForm = ({ availableConfigs, activeConfig, onSetPinningConfig,
     <div>
       <div className="mb-4">
         <label htmlFor="pinning_config" className={labelClass}>
-          Available Configurations
+          Available Pinning Configurations
         </label>
         <div className="relative z-20 bg-transparent dark:bg-form-input">
           <select
