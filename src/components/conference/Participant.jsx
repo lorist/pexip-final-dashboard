@@ -43,11 +43,16 @@ const Participant = ({
     onConfigurePersonalMix(uuid, personalMixLayout);
   };
 
-  const baseButtonClasses = "rounded-md py-2 px-3 text-xs font-medium text-white transition";
-  const primaryButtonClasses = `${baseButtonClasses} bg-primary hover:bg-opacity-90`;
-  const dangerButtonClasses = `${baseButtonClasses} bg-danger hover:bg-opacity-90`;
-  const secondaryButtonClasses = `${baseButtonClasses} bg-graydark hover:bg-opacity-90`;
+  // --- UPDATED BUTTON STYLES ---
+  const baseButtonClasses = "rounded-md py-2 px-3 text-xs font-medium transition";
+  const primaryButtonClasses = `${baseButtonClasses} bg-primary text-white hover:bg-opacity-90`;
+  const dangerButtonClasses = `${baseButtonClasses} bg-danger text-white hover:bg-opacity-90`;
   
+  // Corrected: Explicit light and dark mode styles for secondary buttons
+  const secondaryButtonClasses = `${baseButtonClasses} bg-gray-200 text-black hover:bg-gray-300 dark:bg-graydark dark:text-white dark:hover:bg-opacity-90`;
+  const setGuestButtonClasses = `${baseButtonClasses} rounded-r-md bg-gray-200 text-black hover:bg-gray-300 dark:bg-bodydark dark:text-white disabled:opacity-50`;
+  const setHostButtonClasses = `${baseButtonClasses} rounded-l-md bg-success text-white disabled:opacity-50`;
+
   const mutedStatusClasses = "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200";
   const unmutedStatusClasses = "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200";
   
@@ -74,12 +79,8 @@ const Participant = ({
       
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {isUsingMainMix ? (
-          <button 
-            onClick={() => onCreatePersonalMix(uuid)} 
-            disabled={!can_receive_personal_mix} 
-            className={primaryButtonClasses}
-          >
-            Personal Layout {/* Changed from "Create Mix" */}
+          <button onClick={() => onCreatePersonalMix(uuid)} disabled={!can_receive_personal_mix} className={primaryButtonClasses}>
+            Personal Layout
           </button>
         ) : (
           <div className="flex items-center gap-2">
@@ -89,7 +90,7 @@ const Participant = ({
               ))}
             </select>
             <button onClick={handleConfigure} className={primaryButtonClasses}>Configure</button>
-            <button onClick={() => onDeletePersonalMix(uuid)} className={`${baseButtonClasses} bg-graydark hover:bg-opacity-90`}>Delete Mix</button>
+            <button onClick={() => onDeletePersonalMix(uuid)} className={secondaryButtonClasses}>Delete Mix</button>
           </div>
         )}
         <button onClick={() => onToggleVideoMute(uuid)} className={primaryButtonClasses}>
@@ -102,8 +103,8 @@ const Participant = ({
           {isSpotlit ? 'Remove Spotlight' : 'Add Spotlight'}
         </button>
         <div className="flex rounded-md shadow-sm">
-          <button onClick={() => onSetRole(uuid, 'chair')} disabled={!canControlActions || role === 'chair'} className="rounded-l-md bg-success py-2 px-3 text-xs font-medium text-white disabled:bg-gray-500">Set Host</button>
-          <button onClick={() => onSetRole(uuid, 'guest')} disabled={!canControlActions || role === 'guest'} className="rounded-r-md bg-bodydark py-2 px-3 text-xs font-medium text-white disabled:bg-gray-500">Set Guest</button>
+          <button onClick={() => onSetRole(uuid, 'chair')} disabled={!canControlActions || role === 'chair'} className={setHostButtonClasses}>Set Host</button>
+          <button onClick={() => onSetRole(uuid, 'guest')} disabled={!canControlActions || role === 'guest'} className={setGuestButtonClasses}>Set Guest</button>
         </div>
         <button onClick={() => onDisconnect(uuid)} className={dangerButtonClasses}>Disconnect</button>
       </div>
