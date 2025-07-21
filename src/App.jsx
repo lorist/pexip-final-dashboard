@@ -324,32 +324,76 @@ function App() {
   };
   const DashboardContent = () => (
     <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
+      {/* --- MAIN CONTENT COLUMN --- */}
       <main className={`col-span-12 ${isChatOpen ? 'lg:col-span-8' : ''} flex flex-col gap-4`}>
+        {/* Presentation Card */}
         <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <Presentation isReceivingPresentation={isReceivingPresentation} imageUrl={presentationImageUrl} />
         </div>
+
+        {/* Roster is now here, taking the full width of the main column */}
+        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <Roster
+            participants={participants}
+            availableLayouts={availableLayouts}
+            userRole={userRole}
+            onMuteToggle={handleMuteToggle}
+            onDisconnect={handleDisconnect}
+            onCreatePersonalMix={handleCreatePersonalMix}
+            onConfigurePersonalMix={handleConfigurePersonalMix}
+            onDeletePersonalMix={handleDeletePersonalMix}
+            onSpotlightToggle={handleSpotlightToggle}
+            onToggleVideoMute={handleToggleVideoMute}
+            onToggleSeePresentation={handleToggleSeePresentation}
+            onSetRole={handleSetRole}
+          />
+        </div>
+
+        {/* The smaller control panels are now in a grid below the roster */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <ConferenceActions isLocked={conferenceState.isLocked} onLockToggle={handleLockToggle} guestsMuted={conferenceState.guestsMuted} onMuteAllToggle={handleMuteAllToggle} onSetBroadcastMessage={handleSetBroadcastMessage} onGetBroadcastMessage={handleGetBroadcastMessage} guestsCanUnmute={conferenceState.guestsCanUnmute} onToggleGuestsCanUnmute={handleToggleGuestsCanUnmute} onClearBroadcastMessage={handleClearBroadcastMessage} />
+            <ConferenceActions
+              isLocked={conferenceState.isLocked}
+              onLockToggle={handleLockToggle}
+              guestsMuted={conferenceState.guestsMuted}
+              onMuteAllToggle={handleMuteAllToggle}
+              onSetBroadcastMessage={handleSetBroadcastMessage}
+              onGetBroadcastMessage={handleGetBroadcastMessage}
+              onClearBroadcastMessage={handleClearBroadcastMessage}
+              guestsCanUnmute={conferenceState.guestsCanUnmute}
+              onToggleGuestsCanUnmute={handleToggleGuestsCanUnmute}
+            />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <LayoutControl availableLayouts={availableLayouts} activeLayout={activeLayout} onOverrideLayout={handleOverrideLayout} onResetLayout={handleResetLayout} />
-          </div>
-          <div className="col-span-1 md:col-span-2 rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <h3 className="font-semibold text-black dark:text-white mb-4">Layout Transformation</h3>
-            <TransformLayoutForm availableLayouts={availableLayouts} onTransformLayout={handleTransformLayout} onResetLayout={handleResetTransformLayout} />
+            <LayoutControl
+              availableLayouts={availableLayouts}
+              activeLayout={activeLayout}
+              onOverrideLayout={handleOverrideLayout}
+              onResetLayout={handleResetLayout}
+            />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <PinningConfigForm availableConfigs={availablePinningConfigs} activeConfig={activePinningConfig} onSetPinningConfig={handleSetPinningConfig} onClearPinningConfig={handleClearPinningConfig} />
+            <TransformLayoutForm
+              availableLayouts={availableLayouts}
+              onTransformLayout={handleTransformLayout}
+              onResetLayout={handleResetTransformLayout}
+            />
+          </div>
+          <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <PinningConfigForm
+              availableConfigs={availablePinningConfigs}
+              activeConfig={activePinningConfig}
+              onSetPinningConfig={handleSetPinningConfig}
+              onClearPinningConfig={handleClearPinningConfig}
+            />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <DialOutForm onDialOut={handleDialOut} />
           </div>
         </div>
-        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-          <Roster participants={participants} availableLayouts={availableLayouts} userRole={userRole} onMuteToggle={handleMuteToggle} onDisconnect={handleDisconnect} onCreatePersonalMix={handleCreatePersonalMix} onConfigurePersonalMix={handleConfigurePersonalMix} onDeletePersonalMix={handleDeletePersonalMix} onSpotlightToggle={handleSpotlightToggle} onToggleVideoMute={handleToggleVideoMute} onToggleSeePresentation={handleToggleSeePresentation} onSetRole={handleSetRole} />
-        </div>
       </main>
+
+      {/* --- SIDEBAR COLUMN (CHAT) --- */}
       {isChatOpen && (
         <aside className="col-span-12 lg:col-span-4 h-full">
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark h-full flex flex-col">
