@@ -174,5 +174,3 @@ This application is designed to be deployed as a Docker container, which include
 ├── Dockerfile          \# Instructions for building the production container
 ├── nginx.conf          \# Nginx configuration for the reverse proxy
 └── package.json        \# Project metadata and dependencies
-
-```
