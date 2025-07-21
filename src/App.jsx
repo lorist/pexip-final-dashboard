@@ -11,6 +11,7 @@ import Presentation from './components/conference/Presentation';
 import LayoutControl from './components/conference/LayoutControl';
 import DialOutForm from './components/conference/DialOutForm';
 import PinningConfigForm from './components/conference/PinningConfigForm';
+import TransformLayoutForm from './components/conference/TransformLayoutForm';
 import Participant from './components/conference/Participant';
 
 function App() {
@@ -259,6 +260,17 @@ function App() {
   
   const handleOverrideLayout = (layoutData) => { pexipApiPostWithBody(`/api/client/v2/conferences/${conferenceAlias}/override_layout`, { layouts: [layoutData] }); };
   const handleResetLayout = () => { pexipApiPostWithBody(`/api/client/v2/conferences/${conferenceAlias}/override_layout`, { layouts: [] }); };
+  
+  // RESTORED HANDLERS
+  const handleTransformLayout = (transformsData) => {
+    const apiPath = `/api/client/v2/conferences/${conferenceAlias}/transform_layout`;
+    pexipApiPostWithBody(apiPath, { transforms: transformsData });
+  };
+  const handleResetTransformLayout = () => {
+    const apiPath = `/api/client/v2/conferences/${conferenceAlias}/transform_layout`;
+    pexipApiPostWithBody(apiPath, { transforms: {} });
+  };
+
   const handleLockToggle = () => { pexipApiPost(`/api/client/v2/conferences/${conferenceAlias}/${conferenceState.isLocked ? 'unlock' : 'lock'}`); };
   const handleMuteAllToggle = () => { pexipApiPost(`/api/client/v2/conferences/${conferenceAlias}/${conferenceState.guestsMuted ? 'unmuteguests' : 'muteguests'}`); };
   const handleToggleGuestsCanUnmute = () => { pexipApiPostWithBody(`/api/client/v2/conferences/${conferenceAlias}/set_guests_can_unmute`, { setting: !conferenceState.guestsCanUnmute }); };
@@ -315,6 +327,10 @@ function App() {
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <LayoutControl availableLayouts={availableLayouts} activeLayout={activeLayout} onOverrideLayout={handleOverrideLayout} onResetLayout={handleResetLayout} />
+          </div>
+          <div className="col-span-1 md:col-span-2 rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 className="font-semibold text-black dark:text-white mb-4">Layout Transformation</h3>
+            <TransformLayoutForm availableLayouts={availableLayouts} onTransformLayout={handleTransformLayout} onResetLayout={handleResetTransformLayout} />
           </div>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <PinningConfigForm availableConfigs={availablePinningConfigs} activeConfig={activePinningConfig} onSetPinningConfig={handleSetPinningConfig} onClearPinningConfig={handleClearPinningConfig} />
