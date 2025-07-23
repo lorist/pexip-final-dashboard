@@ -590,17 +590,20 @@ function App() {
     );
   };
 
+
   return (
     <Routes>
+      {/* NEW: Redirect from root to /active-conferences */}
+      <Route path="/" element={<Navigate to="/active-conferences" replace />} />
+
       {/* Route for the Active Conferences page - accessible without login */}
       {/* This route now renders AppLayout directly with ActiveConferences as its child */}
       <Route path="/active-conferences" element={<AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName} isConnected={isConnected}><ActiveConferences conferences={activeConferences} /></AppLayout>} />
 
       {/* Conditional route for the main dashboard when connected */}
       {isConnected ? (
-        <Route path="/" element={
-          <AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName} isConnected={isConnected}> {/* ADDED isConnected={isConnected} */}
-            {console.log('App.jsx: Rendering DashboardContent. isConnected:', isConnected)}
+        <Route path="/dashboard" element={
+          <AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName} isConnected={isConnected}>
             <DashboardContent />
           </AppLayout>
         } />
@@ -609,10 +612,10 @@ function App() {
         <Route path="/login" element={<ConnectionForm onLogin={handleLogin} />} />
       )}
       {/* Redirect any other path to login if not connected and not on active-conferences */}
+      {/* This catch-all route should now redirect to login if not connected and not on a specific known route */}
       {!isConnected && <Route path="*" element={<Navigate to="/login" replace />} />}
-      {isConnected && <Route path="*" element={<Navigate to="/" replace />} />}
+      {isConnected && <Route path="*" element={<Navigate to="/dashboard" replace />} />} {/* CHANGED redirect path */}
     </Routes>
   );
 }
-
 export default App;
