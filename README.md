@@ -162,6 +162,8 @@ volumes:
   backend_data:
 ```
 
+Edit the nginx.conf file to set your Infinity node: `set $upstream_pexip`
+
 ### 4. Build and Run
 
 ```bash
