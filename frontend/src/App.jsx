@@ -576,6 +576,22 @@ function App() {
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
         <main className={`col-span-12 ${isChatOpen ? 'lg:col-span-8' : 'lg:col-span-12'} flex flex-col gap-4`}>
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <Roster
+              participants={participants}
+              availableLayouts={availableLayouts}
+              userRole={userRole}
+              onMuteToggle={handleMuteToggle}
+              onDisconnect={handleDisconnect}
+              onCreatePersonalMix={handleCreatePersonalMix}
+              onConfigurePersonalMix={handleConfigurePersonalMix}
+              onDeletePersonalMix={handleDeletePersonalMix}
+              onSpotlightToggle={handleSpotlightToggle}
+              onToggleVideoMute={handleToggleVideoMute}
+              onToggleSeePresentation={handleToggleSeePresentation}
+              onSetRole={handleSetRole}
+            />
+          </div>
+          <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <Presentation isReceivingPresentation={isReceivingPresentation} imageUrl={presentationImageUrl} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -599,22 +615,7 @@ function App() {
               <DialOutForm onDialOut={handleDialOut} />
             </div>
           </div>
-          <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <Roster
-              participants={participants}
-              availableLayouts={availableLayouts}
-              userRole={userRole}
-              onMuteToggle={handleMuteToggle}
-              onDisconnect={handleDisconnect}
-              onCreatePersonalMix={handleCreatePersonalMix}
-              onConfigurePersonalMix={handleConfigurePersonalMix}
-              onDeletePersonalMix={handleDeletePersonalMix}
-              onSpotlightToggle={handleSpotlightToggle}
-              onToggleVideoMute={handleToggleVideoMute}
-              onToggleSeePresentation={handleToggleSeePresentation}
-              onSetRole={handleSetRole}
-            />
-          </div>
+          
         </main>
         {isChatOpen && (
           <aside className="col-span-12 lg:col-span-4 h-full">
