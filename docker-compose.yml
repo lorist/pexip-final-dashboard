@@ -10,6 +10,9 @@ services:
     container_name: pexip_frontend
     ports:
       - "80:80" # Map host port 80 to container port 80
+    environment:
+      # Set your Pexip Infinity API URL here
+      - PEXIP_UPSTREAM_URL=https://your-actual-pexip-node.com
     depends_on:
       - backend # Ensure backend starts before frontend
     networks:
