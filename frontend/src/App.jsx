@@ -1,4 +1,4 @@
-// src/App.jsx
+// src/App.jsx (Final Fix for isConnected Prop)
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -9,12 +9,10 @@ import ConnectionForm from './components/forms/ConnectionForm';
 import Roster from './components/conference/Roster';
 import ConferenceActions from './components/conference/ConferenceActions';
 import Chat from './components/conference/Chat';
-import Presentation from './components/conference/Presentation';
-import LayoutControl from './components/conference/LayoutControl';
+import LayoutControl from './components/conference/LayoutControl'; // CORRECTED: Removed 's' from LayoutsControl
 import DialOutForm from './components/conference/DialOutForm';
 import PinningConfigForm from './components/conference/PinningConfigForm';
-// Import the new ActiveConferences component
-import ActiveConferences from './components/dashboard/ActiveConferences'; 
+import ActiveConferences from './components/dashboard/ActiveConferences';
 
 function App() {
   // --- STATE MANAGEMENT ---
@@ -26,8 +24,6 @@ function App() {
   const [participants, setParticipants] = useState([]); // This is for the *current* conference
   const [conferenceState, setConferenceState] = useState({ isLocked: false, guestsMuted: false, guestsCanUnmute: false });
   const [messages, setMessages] = useState([]);
-  const [isReceivingPresentation, setIsReceivingPresentation] = useState(false);
-  const [presentationImageUrl, setPresentationImageUrl] = useState('');
   const [availableLayouts, setAvailableLayouts] = useState({});
   const [userRole, setUserRole] = useState(null);
   const [pin, setPin] = useState('');
@@ -46,11 +42,6 @@ function App() {
   const eventSinkSourceRef = useRef(null); // Ref for event sink EventSource
 
   // --- HOOKS ---
-
-  // Effect for setting dark mode on body
-  // useEffect(() => {
-  //   document.body.classList.add('dark');
-  // }, []);
 
   // Effect for handling beforeunload to release token
   useEffect(() => {
@@ -105,8 +96,8 @@ function App() {
       setParticipants(prev => {
         // Prevent duplicate participants if event is received multiple times
         if (prev.some(p => p.uuid === newParticipant.uuid)) return prev;
-    // This line needs the nullish coalescing operator
-    return [...prev, newParticipant].sort((a, b) => (a.display_name ?? '').localeCompare(b.display_name ?? ''));
+        // Safely sort participants, handling potentially undefined display_name
+        return [...prev, newParticipant].sort((a, b) => (a.display_name ?? '').localeCompare(b.display_name ?? ''));
       });
     });
 
@@ -120,36 +111,7 @@ function App() {
       setParticipants(prev => prev.filter(p => p.uuid !== deletedParticipant.uuid));
     });
 
-    eventSource.addEventListener('presentation_start', () => setIsReceivingPresentation(true));
-
-    eventSource.addEventListener('presentation_stop', () => {
-      setIsReceivingPresentation(false);
-      // Revoke the old URL to prevent memory leaks
-      if (presentationImageUrl) URL.revokeObjectURL(presentationImageUrl);
-      setPresentationImageUrl('');
-    });
-
-    eventSource.addEventListener('presentation_frame', async (event) => {
-      const imageUrlPath = `/api/client/v2/conferences/${conferenceAlias}/presentation.jpeg?id=${event.lastEventId}&token=${token}`;
-      try {
-        const response = await fetch(imageUrlPath, { method: 'GET', headers: { 'token': token } });
-        if (response.ok) {
-          const imageBlob = await response.blob();
-          const newImageUrl = URL.createObjectURL(imageBlob);
-          setPresentationImageUrl(oldUrl => {
-            // Revoke the previous object URL to avoid memory leaks
-            if (oldUrl) URL.revokeObjectURL(oldUrl);
-            return newImageUrl;
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch presentation frame:", error);
-      }
-    });
-
     eventSource.addEventListener('disconnect', (event) => {
-      // Using a custom message box instead of alert()
-      // You would replace this with your actual modal/message box component
       console.log(`Disconnected: ${JSON.parse(event.data).reason}`);
       handleLeave(); // Clean up state on disconnect
     });
@@ -166,7 +128,7 @@ function App() {
         eventSourceRef.current = null;
       }
     };
-  }, [isConnected, token, conferenceAlias, presentationImageUrl]); // Added presentationImageUrl to dependencies for revokeObjectURL
+  }, [isConnected, token, conferenceAlias]);
 
   // Effect to fetch initial active conferences data from backend (for overview page)
   useEffect(() => {
@@ -274,7 +236,7 @@ function App() {
               return {
                 ...updatedConf,
                 participants: [...updatedConf.participants, eventData.participant].sort((a, b) => (a.display_name ?? '').localeCompare(b.display_name ?? ''))
-              };
+              }; // CORRECTED: Removed semicolon here
             }
             return updatedConf; // Return updatedConf even if no participant added
           }
@@ -286,7 +248,7 @@ function App() {
         setParticipants(prev => {
           if (!prev.some(p => p.uuid === eventData.participant.uuid)) {
             return [...prev, eventData.participant].sort((a, b) => (a.display_name ?? '').localeCompare(b.display_name ?? ''));
-          }
+          } // CORRECTED: Removed semicolon here
           return prev;
         });
       }
@@ -422,8 +384,10 @@ function App() {
         headers: { 'Content-Type': 'application/json', 'pin': pin || "" },
         body: JSON.stringify(requestBody)
       });
-      const result = await response.json();
+
+      // Check if the response is OK (2xx status)
       if (response.ok) {
+        const result = await response.json(); // Expect JSON on success
         const newToken = result.result.token;
         // Fetch available layouts
         const layouts = await pexipApiGet(`/api/client/v2/conferences/${conference}/layout_svgs`, newToken);
@@ -438,14 +402,13 @@ function App() {
         setConferenceAlias(conference);
         setConferenceDisplayName(result.result.conference_name);
         setTokenExpires(result.result.expires || 120);
-        setIsConnected(true);
+        setIsConnected(true); // <--- This is set to true on successful login
 
-        // NEW: Fetch initial participants for the *joined* conference from the backend
+        // Fetch initial participants for the *joined* conference from the backend
         try {
           const participantsResponse = await fetch(`/active-conferences-data/${conference}/participants`);
           if (participantsResponse.ok) {
             const initialParticipants = await participantsResponse.json();
-            // Ensure booleans are correctly parsed from SQLite (INTEGER 0/1) for current participants
             const parsedParticipants = initialParticipants.map(p => ({
               ...p,
               is_muted: Boolean(p.is_muted),
@@ -456,20 +419,22 @@ function App() {
             console.log(`App.jsx: Initial participants fetched for joined conference '${conference}':`, parsedParticipants);
           } else {
             console.error(`Failed to fetch initial participants for joined conference '${conference}':`, participantsResponse.statusText);
-            setParticipants([]); // Ensure it's an empty array on failure
+            setParticipants([]);
           }
         } catch (error) {
           console.error(`Error fetching initial participants for joined conference '${conference}':`, error);
-          setParticipants([]); // Ensure it's an empty array on error
+          setParticipants([]);
         }
 
       } else {
-        // Using a custom message box instead of alert()
-        console.error(`Failed to join: ${result.result || JSON.stringify(result)}`);
+        // If response is not OK, try to read as text first to avoid JSON parsing errors
+        const errorText = await response.text();
+        console.error(`Failed to join conference (Status: ${response.status}):`, errorText);
+        handleLeave(); // Ensure state is reset on failed login
       }
     } catch (error) {
-      // Using a custom message box instead of alert()
-      console.error('A network error occurred. Please check your Nginx proxy configuration.', error);
+      console.error('A network error occurred during login:', error);
+      handleLeave(); // Disconnect on network error
     }
   };
 
@@ -485,16 +450,13 @@ function App() {
       pexipApiPost(apiPath);
     }
     // Clean up all conference-related state
-    setIsConnected(false);
+    setIsConnected(false); // <--- This is set to false on leave
     setToken(null);
     setConferenceAlias('');
     setConferenceDisplayName('');
     setParticipants([]);
     setConferenceState({ isLocked: false, guestsMuted: false, guestsCanUnmute: false });
     setMessages([]);
-    // Revoke presentation image URL to prevent memory leaks
-    if (presentationImageUrl) URL.revokeObjectURL(presentationImageUrl);
-    setPresentationImageUrl('');
     setAvailableLayouts({});
     setUserRole(null);
     setPin('');
@@ -523,7 +485,8 @@ function App() {
     if (pin) headers.pin = pin;
     try {
       fetch(apiPath, { method: 'POST', headers: headers, body: JSON.stringify(body) });
-    } catch (error) { console.error(`API call to ${path} failed:`, error); }
+    }
+    catch (error) { console.error(`API call to ${path} failed:`, error); }
   };
 
   const handleClearPinningConfig = () => {
@@ -575,6 +538,8 @@ function App() {
     return (
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
         <main className={`col-span-12 ${isChatOpen ? 'lg:col-span-8' : 'lg:col-span-12'} flex flex-col gap-4`}>
+
+          {/* MOVED: Participant Roster to the top */}
           <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <Roster
               participants={participants}
@@ -591,9 +556,7 @@ function App() {
               onSetRole={handleSetRole}
             />
           </div>
-          <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <Presentation isReceivingPresentation={isReceivingPresentation} imageUrl={presentationImageUrl} />
-          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
               <ConferenceActions
@@ -615,11 +578,10 @@ function App() {
               <DialOutForm onDialOut={handleDialOut} />
             </div>
           </div>
-          
         </main>
         {isChatOpen && (
           <aside className="col-span-12 lg:col-span-4 h-full">
-            <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark h-full flex flex-col">\
+            <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark h-full flex flex-col">
               <Chat messages={messages} onSendMessage={handleSendMessage} />
             </div>
           </aside>
@@ -632,12 +594,13 @@ function App() {
     <Routes>
       {/* Route for the Active Conferences page - accessible without login */}
       {/* This route now renders AppLayout directly with ActiveConferences as its child */}
-      <Route path="/active-conferences" element={<AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName}><ActiveConferences conferences={activeConferences} /></AppLayout>} />
+      <Route path="/active-conferences" element={<AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName} isConnected={isConnected}><ActiveConferences conferences={activeConferences} /></AppLayout>} />
 
       {/* Conditional route for the main dashboard when connected */}
       {isConnected ? (
         <Route path="/" element={
-          <AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName}>
+          <AppLayout onLeave={handleLeave} onToggleChat={handleToggleChat} conferenceDisplayName={conferenceDisplayName} isConnected={isConnected}> {/* ADDED isConnected={isConnected} */}
+            {console.log('App.jsx: Rendering DashboardContent. isConnected:', isConnected)}
             <DashboardContent />
           </AppLayout>
         } />

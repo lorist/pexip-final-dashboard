@@ -1,31 +1,37 @@
-// src/components/conference/Presentation.jsx
+// src/components/conference/Presentation.jsx (Reverted to original image tag method)
 
 import React from 'react';
 
+/**
+ * Displays the active presentation stream using an img tag.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.isReceivingPresentation - True if a presentation is active.
+ * @param {string} [props.imageUrl] - The URL of the current presentation frame.
+ */
 const Presentation = ({ isReceivingPresentation, imageUrl }) => {
-  // If a presentation is active and we have an image URL, show the image
-  if (isReceivingPresentation && imageUrl) {
+  if (!isReceivingPresentation) {
     return (
-      <div>
-        <h3 className="font-semibold text-black dark:text-white mb-4">Presentation</h3>
-        <div className="rounded-sm border border-stroke bg-black p-1 shadow-default dark:border-strokedark">
-          <img src={imageUrl} alt="Live presentation stream" className="w-full" />
-        </div>
+      <div className="flex items-center justify-center h-64 bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 rounded-md">
+        No presentation active.
       </div>
     );
   }
 
-  // Otherwise, show the placeholder message
   return (
-    <div className="flex h-full min-h-48 items-center justify-center text-center">
-      <div>
-        <h3 className="text-lg font-semibold text-black dark:text-white">
-          Presentation Preview
-        </h3>
-        <p className="mt-2 text-sm text-bodydark2">
-          When a participant starts sharing content, it will be displayed here.
-        </p>
-      </div>
+    <div className="flex justify-center items-center h-full max-h-96 w-full"> {/* Container for responsive sizing */}
+      {/* Original img tag approach */}
+      <img
+        src={imageUrl}
+        alt="Pexip Presentation"
+        className="max-w-full max-h-full object-contain"
+        // Add onerror to handle broken image links gracefully
+        onError={(e) => {
+          e.target.onerror = null; // Prevent infinite loop
+          e.target.src = "https://placehold.co/600x400/cccccc/333333?text=Presentation+Error"; // Placeholder image
+          console.error("Failed to load presentation image:", imageUrl);
+        }}
+      />
     </div>
   );
 };
