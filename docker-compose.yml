@@ -1,0 +1,55 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Frontend Service: Builds React app and serves with Nginx
+  frontend:
+    build:
+      context: ./frontend # Path to your frontend directory
+      dockerfile: Dockerfile
+    container_name: pexip_frontend
+    ports:
+      - "80:80" # Map host port 80 to container port 80
+    depends_on:
+      - backend # Ensure backend starts before frontend
+    networks:
+      - pexip_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"] # Checks if Nginx serves index.html
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Backend Service: Node.js webhook receiver and SSE broadcaster
+  backend:
+    build:
+      context: ./backend # Path to your Node.js backend directory
+      dockerfile: Dockerfile
+    container_name: pexip_backend
+    ports:
+      - "5000:5000" # Expose backend port for internal communication (Nginx)
+    environment:
+      REDIS_URL: "redis://redis:6379" # Redis connection string (using service name for host)
+    volumes:
+      - backend_data:/app/data # <--- NEW: Map named volume to /app/data for SQLite persistence
+    depends_on:
+      - redis # Ensure Redis starts before the backend
+    networks:
+      - pexip_network
+
+  # Redis Service
+  redis:
+    image: redis:7-alpine # Lightweight Redis image
+    container_name: pexip_redis
+    ports:
+      - "6379:6379" # Optional: Expose Redis port if you need to access it from host
+    networks:
+      - pexip_network
+
+networks:
+  pexip_network:
+    driver: bridge
+
+volumes:
+  backend_data: # <--- NEW: Define the named volume for backend persistence
