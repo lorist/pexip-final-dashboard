@@ -5,7 +5,7 @@ This project is a modern, real-time web dashboard for managing Pexip video confe
 The user interface is styled using the **TailAdmin** template, providing a professional, dark-themed, and responsive experience.
 ![alt connect to vmr](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image1.png)
 ![alt active vmrs](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image2.png)
-![alt vmr control]([http://url/to/img.png](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image3.png)
+![alt vmr control](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image3.png)
 ## Features
 
 - **Real-Time Updates**: Utilizes Server-Sent Events (SSE) to provide a live view of the conference state.
