@@ -82,8 +82,8 @@ To run the application locally for development:
       }
     
       location /api/ {
-        proxy_pass [https://internal.lorist.org](https://internal.lorist.org);
-        proxy_set_header Host internal.lorist.org;
+        proxy_pass https://confnode.company.com;;
+        proxy_set_header Host confnode.company.com;
         # ... other proxy headers ...
       }
     }
