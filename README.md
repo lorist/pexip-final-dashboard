@@ -3,7 +3,9 @@
 This project is a modern, real-time web dashboard for managing Pexip video conferences. It was built by converting a static HTML/vanilla JavaScript sample into a robust React single-page application (SPA). The dashboard provides hosts with a comprehensive set of tools to control participants and conference-wide settings through the **Pexip Client API v2**.
 
 The user interface is styled using the **TailAdmin** template, providing a professional, dark-themed, and responsive experience.
-
+![alt connect to vmr](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image1.png)
+![alt active vmrs](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image2.png)
+![alt vmr control]([http://url/to/img.png](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image3.png)
 ## Features
 
 - **Real-Time Updates**: Utilizes Server-Sent Events (SSE) to provide a live view of the conference state.
