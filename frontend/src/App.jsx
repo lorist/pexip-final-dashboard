@@ -530,6 +530,29 @@ function App() {
     if (p) pexipApiPost(`/api/client/v2/conferences/${conferenceAlias}/participants/${participantId}/${p.rx_presentation_policy === 'ALLOW' ? 'denyrxpresentation' : 'allowrxpresentation'}`);
   };
   const handleSetRole = (participantId, role) => { pexipApiPostWithBody(`/api/client/v2/conferences/${conferenceAlias}/participants/${participantId}/role`, { role: role }); };
+    // --- Broadcast Message Handlers ---
+  const handleSetBroadcastMessage = () => {
+    const message = prompt('Enter the message to display to all participants:');
+    if (message !== null) {
+      pexipApiPostWithBody(`/api/client/v2/conferences/${conferenceAlias}/set_message_text`, { text: message });
+    }
+  };
+  const handleGetBroadcastMessage = async () => {
+    const response = await pexipApiGet(`/api/client/v2/conferences/${conferenceAlias}/get_message_text`, token);
+    if (response && response.result) {
+      alert(`Current broadcast message:\n\n${response.result.text || "No message is set."}`);
+    } else {
+      alert("Could not retrieve the current broadcast message.");
+    }
+  };
+  const handleClearBroadcastMessage = () => {
+    const apiPath = `/api/client/v2/conferences/${conferenceAlias}/set_message_text`;
+    
+    // Change the body to be an empty object
+    const body = {};
+    pexipApiPostWithBody(apiPath, body);
+  };
+  // --- End Broadcast Message Handlers ---
 
   // This is the content that will be displayed inside the dashboard layout when connected
   const DashboardContent = () => {
@@ -566,6 +589,9 @@ function App() {
                 onMuteAllToggle={handleMuteAllToggle}
                 guestsCanUnmute={conferenceState.guestsCanUnmute}
                 onToggleGuestsCanUnmute={handleToggleGuestsCanUnmute}
+                onSetBroadcastMessage={handleSetBroadcastMessage}
+                onGetBroadcastMessage={handleGetBroadcastMessage}
+                onClearBroadcastMessage={handleClearBroadcastMessage}
               />
             </div>
             <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
