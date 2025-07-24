@@ -7,69 +7,6 @@ The user interface is styled using the **TailAdmin** template, providing a profe
 ![alt active vmrs](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image2.png)
 ![alt vmr control](https://github.com/lorist/pexip-final-dashboard/blob/event-sink-addition/image3.png)
 
-graph TD
-    subgraph User Interaction
-        A[User Opens Browser] --> B{Access Root URL /}
-        B -- Nginx Redirect --> C[Redirected to /active-conferences]
-    end
-
-    subgraph Frontend (React App)
-        C --> D[Active Conferences Page Loads]
-        D -- Initial Data Fetch --> E[GET /active-conferences-data]
-        D -- "Click 'Manage' Link" --> F[Login Page (/login) with pre-filled Conference Alias]
-        F -- "User Submits Login Form" --> G{handleLogin Function}
-        G -- "POST /api/client/v2/conferences/:alias/request_token" --> H[Pexip Client API (via Nginx Proxy)]
-        H -- "Success: Token, Role, Conf. Name" --> I{isConnected = true}
-        I --> J[Fetch Initial Participants: GET /active-conferences-data/:alias/participants]
-        I --> K[Redirect to Dashboard (/dashboard)]
-        J --> L[Update Participants State]
-        K --> M[Dashboard Page Loads]
-        M -- "Display Roster, Controls, Chat" --> N[Real-time EventSource Connection: /api/client/v2/conferences/:alias/events]
-        M -- "Real-time Event Sink Connection" --> O[SSE Stream: /sse-events]
-        N -- "Conference/Participant Updates, Messages" --> P[Update Frontend State (e.g., participants, conferenceState, messages)]
-        O -- "All Active Conference Updates" --> Q[Update ActiveConferences State]
-        M -- "User Actions (Mute, Lock, Chat, etc.)" --> R[Send API Requests: POST /api/client/v2/...]
-    end
-
-    subgraph Backend (Node.js Express App)
-        E --> S[Backend: GET /active-conferences-data]
-        S -- "Query SQLite DB (conferences, participants)" --> T[Return All Active Conferences Data]
-        J --> U[Backend: GET /active-conferences-data/:alias/participants]
-        U -- "Query SQLite DB (specific participants)" --> V[Return Specific Participants Data]
-        R --> W[Backend: Proxy Pexip API Requests]
-        X[Pexip Infinity Event Sink] --> Y[Backend: POST /pexip-events-webhook]
-        Y -- "Process Event, Update SQLite" --> Z[Publish Event to Redis]
-        O --> AA[Backend: SSE Stream Endpoint (/stream)]
-        Z --> AA
-    end
-
-    subgraph Data Stores
-        DB[SQLite Database]
-        REDIS[Redis (Pub/Sub)]
-    end
-
-    subgraph External Systems
-        PEXIP_API[Pexip Infinity Client API]
-    end
-
-    subgraph Nginx Proxy (within Frontend Container)
-        Nginx[Nginx Proxy]
-    end
-
-    T --> D
-    V --> L
-    H --> Nginx
-    W --> PEXIP_API
-    Nginx --> PEXIP_API
-    Y -- "Updates" --> DB
-    Z --> REDIS
-    AA -- "Streams" --> O
-
-    subgraph Logout
-        M -- "Click 'Leave' Button" --> BB[handleLeave Function]
-        BB -- "Close EventSource, Release Token" --> CC[Reset Frontend State]
-        CC --> DD[Redirect to /login]
-    end
 
 ## Features
 
@@ -95,8 +32,7 @@ graph TD
 - **Dial Out**: Dial a new participant into the conference.
 - **Session Management**: Automatic token refresh to maintain an active session and graceful disconnect on browser close.
 - **Active Conferences Overview**: A dedicated page to view all active conferences, including participant details, with a direct link to manage a conference.
-- ~~Role-Based Information~~ (Removed as per user request)  
-- ~~Presentation Display~~ (Removed as per user request)
+- ~~Presentation Display~~ (Removed as there was flickering of the image)
 
 ## Tech Stack
 
