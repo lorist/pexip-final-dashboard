@@ -174,3 +174,16 @@ This application is designed to be deployed as a Docker container, which include
 ├── Dockerfile          \# Instructions for building the production container
 ├── nginx.conf          \# Nginx configuration for the reverse proxy
 └── package.json        \# Project metadata and dependencies
+````
+Make sure you have a participant policy that enables Personal Layouts if you want that to work. Example:
+
+````
+{
+    {% if service_config %}
+        "action" : "continue",
+        "result" : {{participant|pex_update({"can_receive_personal_mix": true})|pex_to_json}}
+    {% else %}
+        "action" : "reject",
+        "result" : {}
+    {% endif %}
+}
