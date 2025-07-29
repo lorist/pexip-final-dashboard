@@ -1,36 +1,24 @@
-version: '3.8'
+# Stage 1: Build the React application
+[cite_start]FROM node:18-alpine AS build [cite: 1]
 
-services:
-  nginx:
-    build:
-      context: . # Build from the current directory where Dockerfile is located
-      dockerfile: Dockerfile
-    container_name: pextest_nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Mount shared volume for Certbot to place challenge files
-      - ./data/certbot/www:/var/www/certbot
-      # Mount shared volume for Certbot to store certificates
-      - ./data/certbot/conf:/etc/letsencrypt
-      # Mount the pre-generated DH params file
-      - ./ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem:ro
-    depends_on:
-      - certbot # Ensure certbot service exists, but not strictly "up" for initial certs
-    restart: always # Always restart Nginx if it crashes
+[cite_start]WORKDIR /app [cite: 1]
 
-  certbot:
-    image: certbot/certbot
-    container_name: pextest_certbot
-    volumes:
-      - ./data/certbot/www:/var/www/certbot # Shared webroot for challenges
-      - ./data/certbot/conf:/etc/letsencrypt # Shared location for certs and configs
-    # This entrypoint is for auto-renewal. For initial certs, you'll run it manually.
-    # It attempts to renew every 12 hours.
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --nginx; echo \"Certbot renewal complete. Reloading Nginx...\"; /usr/bin/docker exec pextest_nginx nginx -s reload; sleep 12h & wait $${!}; done;'"
-    # Do not expose ports for certbot, it works by placing files Nginx serves.
+[cite_start]COPY package*.json ./ [cite: 1]
+[cite_start]RUN npm install [cite: 1]
 
-volumes:
-  certbot_www: # This defines the volume to share webroot files
-  certbot_conf: # This defines the volume to share certificate files
+COPY . [cite_start]. [cite: 1]
+[cite_start]RUN npm run build [cite: 2]
+
+# Stage 2: Serve the application with Nginx
+[cite_start]FROM nginx:stable-alpine [cite: 2]
+
+# Copy the build output from the build stage
+[cite_start]COPY --from=build /app/dist /usr/share/nginx/html [cite: 2]
+
+# Copy the Nginx configuration for HTTPS (ensure this file exists in your project directory)
+COPY nginx-https.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80 # Expose port 80 for HTTP (Certbot challenge and redirect)
+EXPOSE 443 # Expose port 443 for HTTPS
+
+CMD ["nginx", "-g", "daemon off;"]

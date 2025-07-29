@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: . # Build from the current directory where Dockerfile is located
+      dockerfile: Dockerfile
+    container_name: pextest_nginx
+    ports:
+      - "80:80" # Map host port 80 to container port 80 (for Certbot challenge and HTTP -> HTTPS redirect)
+      - "443:443" # Map host port 443 to container port 443 (for HTTPS traffic)
+    volumes:
+      # Mount shared volume for Certbot to place challenge files.
+      # This 'www' directory on your host will hold temporary files for domain verification.
+      - ./data/certbot/www:/var/www/certbot
+      # Mount shared volume for Certbot to store certificates and its configuration.
+      # This 'conf' directory on your host will persist your SSL certificates.
+      - ./data/certbot/conf:/etc/letsencrypt
+      # Mount the pre-generated Diffie-Hellman parameters file.
+      # Ensure you have run 'openssl dhparam -out ssl-dhparams.pem 2048' in your project root.
+      - ./ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem:ro
+    depends_on:
+      - certbot # Indicates that the certbot service is part of the overall setup.
+    restart: always # Ensures Nginx restarts automatically if it crashes or after host reboot.
+
+  certbot:
+    image: certbot/certbot # Uses the official Certbot Docker image.
+    container_name: pextest_certbot
+    volumes:
+      # Shared webroot for ACME challenges (must match the nginx service's volume for /var/www/certbot).
+      - ./data/certbot/www:/var/www/certbot
+      # Shared location for certificates and Certbot's configuration (must match nginx service's volume).
+      - ./data/certbot/conf:/etc/letsencrypt
+    # This entrypoint automatically attempts to renew certificates every 12 hours.
+    # After a successful renewal, it uses 'docker exec' to signal the Nginx container to reload its configuration,
+    # thereby loading the newly renewed certificates without downtime.
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --nginx; echo \"Certbot renewal complete. Reloading Nginx...\"; /usr/bin/docker exec pextest_nginx nginx -s reload; sleep 12h & wait $${!}; done;'"
+    # No ports are exposed for Certbot as it communicates via shared volumes and the Nginx web server.
+
+volumes:
+  # Explicitly define named volumes for clarity and potential future expansion,
+  # though in this setup, bind mounts are used directly.
+  certbot_www:
+  certbot_conf:
