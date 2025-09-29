@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 
 const ConnectionForm = ({ onLogin }) => {
-  const [conference, setConference] = useState('pinning');
-  const [pin, setPin] = useState('1111');
-  const [displayName, setDisplayName] = useState('Concierge');
+  const [conference, setConference] = '';
+  // const [conference, setConference] = useState('pinning_conf');
+  const [pin, setPin] = '';
+  // const [pin, setPin] = useState('1111');
+  const [displayName, setDisplayName] = useState('Virtual Concierge');
 
   const handleSubmit = (event) => {
     event.preventDefault();
