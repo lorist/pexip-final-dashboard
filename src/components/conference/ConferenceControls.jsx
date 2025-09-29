@@ -47,15 +47,12 @@ const ConferenceControls = ({
       <div className="space-y-2">
         <button
           onClick={onSetBroadcastMessage}
-          // Using a primary/success color ensures contrast
           className="w-full rounded bg-primary p-2 text-white hover:bg-opacity-90"
         >
           Set Broadcast Message
         </button>
         <button
           onClick={onGetBroadcastMessage}
-          // 💡 FIX: Change from 'bg-graydark' to a lighter gray with black text
-          // Use 'bg-gray-200' and 'text-black' for clear visibility in light mode.
           className="w-full rounded bg-gray-200 p-2 text-black hover:bg-gray-300"
         >
           Get Broadcast Message
