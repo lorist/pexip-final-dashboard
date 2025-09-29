@@ -1,5 +1,3 @@
-// src/components/conference/Participant.jsx
-
 import React, { useState } from 'react';
 
 const Participant = ({
@@ -43,12 +41,10 @@ const Participant = ({
     onConfigurePersonalMix(uuid, personalMixLayout);
   };
 
-  // --- UPDATED BUTTON STYLES ---
+  // --- Button classes (unchanged) ---
   const baseButtonClasses = "rounded-md py-2 px-3 text-xs font-medium transition";
   const primaryButtonClasses = `${baseButtonClasses} bg-primary text-white hover:bg-opacity-90`;
   const dangerButtonClasses = `${baseButtonClasses} bg-danger text-white hover:bg-opacity-90`;
-  
-  // Corrected: Explicit light and dark mode styles for secondary buttons
   const secondaryButtonClasses = `${baseButtonClasses} bg-gray-200 text-black hover:bg-gray-300 dark:bg-graydark dark:text-white dark:hover:bg-opacity-90`;
   const setGuestButtonClasses = `${baseButtonClasses} rounded-r-md bg-gray-200 text-black hover:bg-gray-300 dark:bg-bodydark dark:text-white disabled:opacity-50`;
   const setHostButtonClasses = `${baseButtonClasses} rounded-l-md bg-success text-white disabled:opacity-50`;
@@ -79,14 +75,24 @@ const Participant = ({
       
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {isUsingMainMix ? (
-          <button onClick={() => onCreatePersonalMix(uuid)} disabled={!can_receive_personal_mix} className={primaryButtonClasses}>
+          <button
+            onClick={() => onCreatePersonalMix(uuid)}
+            disabled={!can_receive_personal_mix}
+            className={primaryButtonClasses}
+          >
             Personal Layout
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <select value={personalMixLayout} onChange={(e) => setPersonalMixLayout(e.target.value)} className="rounded-md bg-gray-3 dark:bg-form-input p-2 text-sm">
-              {Object.keys(availableLayouts).map(layoutKey => (
-                <option key={layoutKey} value={layoutKey}>{layoutKey}</option>
+            <select
+              value={personalMixLayout}
+              onChange={(e) => setPersonalMixLayout(e.target.value)}
+              className="rounded-md bg-gray-3 dark:bg-form-input p-2 text-sm"
+            >
+              {Object.keys(availableLayouts).map((layoutKey) => (
+                <option key={layoutKey} value={layoutKey}>
+                  {availableLayouts[layoutKey] || layoutKey}
+                </option>
               ))}
             </select>
             <button onClick={handleConfigure} className={primaryButtonClasses}>Configure</button>

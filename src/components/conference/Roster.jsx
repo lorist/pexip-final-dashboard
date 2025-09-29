@@ -4,7 +4,8 @@ import React from 'react';
 import Participant from './Participant';
 
 const Roster = ({
-  participants,
+  title,
+  participants = [],
   availableLayouts,
   userRole,
   onMuteToggle,
@@ -15,19 +16,30 @@ const Roster = ({
   onSpotlightToggle,
   onToggleVideoMute,
   onToggleSeePresentation,
-  onTogglePresInMix,
   onSetRole,
 }) => {
-  const inConference = participants.filter(p => p.service_type === 'conference');
+  console.log(`[Roster] Rendering "${title}" with participants:`, participants);
+
+  if (!participants || participants.length === 0) {
+    return (
+      <div>
+        <h3 className="font-semibold text-black dark:text-white mb-4">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">No participants</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="font-semibold text-black dark:text-white">Roster ({inConference.length})</h3>
-      {inConference.length > 0 ? (
-        inConference.map(p => (
+    <div>
+      <h3 className="font-semibold text-black dark:text-white mb-4">{title}</h3>
+      <div className="flex flex-col gap-3">
+        {participants.map((p) => (
           <Participant
-            key={p.uuid}
-            participant={p}
+            key={p.uuid || p.api_url}
+            participant={{
+              ...p,
+              display_name: p.display_name || "Unnamed Participant",
+            }}
             availableLayouts={availableLayouts}
             userRole={userRole}
             onMuteToggle={onMuteToggle}
@@ -38,13 +50,10 @@ const Roster = ({
             onSpotlightToggle={onSpotlightToggle}
             onToggleVideoMute={onToggleVideoMute}
             onToggleSeePresentation={onToggleSeePresentation}
-            onTogglePresInMix={onTogglePresInMix}
             onSetRole={onSetRole}
           />
-        ))
-      ) : (
-        <p className="text-bodydark2">No participants in the conference.</p>
-      )}
+        ))}
+      </div>
     </div>
   );
 };

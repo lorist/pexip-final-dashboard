@@ -1,118 +1,164 @@
-// src/components/conference/TransformLayoutForm.jsx
+// components/conference/TransformLayoutForm.jsx
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const TransformLayoutForm = ({ availableLayouts, onTransformLayout, onResetLayout }) => {
-  // State for each dropdown
-  const [layout, setLayout] = useState('');
-  const [guestLayout, setGuestLayout] = useState(''); // NEW: State for the guest layout
-  const [enableOverlayText, setEnableOverlayText] = useState('');
-  const [activeSpeaker, setActiveSpeaker] = useState('');
-  const [streamingIndicator, setStreamingIndicator] = useState('');
-  const [recordingIndicator, setRecordingIndicator] = useState('');
-  
-  const handleSubmit = () => {
-    const transforms = {};
+const TransformLayoutForm = ({
+  conferenceType,
+  availableLayouts = [],
+  onTransformLayout,
+  onResetLayout,
+}) => {
+  const [layout, setLayout] = useState("");
+  const [hostLayout, setHostLayout] = useState("");
+  const [guestLayout, setGuestLayout] = useState("");
+  // NEW STATE FOR TEXT OVERLAY
+  const [overlayText, setOverlayText] = useState(""); 
+  const [isTextEnabled, setIsTextEnabled] = useState(false); // New state to control if the text is sent
 
-    // Only add properties to the transforms object if they have a value
-    if (layout) transforms.layout = layout;
-    if (guestLayout) transforms.guest_layout = guestLayout; // NEW: Add guest_layout to the transforms
-    if (activeSpeaker) transforms.enable_active_speaker_indication = activeSpeaker === 'on';
-    if (enableOverlayText) transforms.enable_overlay_text = enableOverlayText === 'on';
-    if (streamingIndicator) transforms.streaming_indicator = streamingIndicator === 'on';
-    if (recordingIndicator) transforms.recording_indicator = recordingIndicator === 'on';
+  const isLecture = conferenceType === "lecture";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    let layoutPayload = {};
+    let textTransforms = {};
+
+    if (isLecture) {
+      if (!hostLayout && !guestLayout && !isTextEnabled) {
+        alert("Please select a layout or enter text to enable the overlay.");
+        return;
+      }
+      if (hostLayout) layoutPayload.hostLayout = hostLayout;
+      if (guestLayout) layoutPayload.guestLayout = guestLayout;
+
+    } else {
+      if (!layout && !isTextEnabled) {
+        alert("Please select a layout or enter text to enable the overlay.");
+        return;
+      }
+      if (layout) layoutPayload.layout = layout;
+    }
     
-    onTransformLayout(transforms);
+    // BUILD TEXT TRANSFORM PAYLOAD
+    if (isTextEnabled) {
+        textTransforms.text_overlay = {
+            // Send the text content. If empty, it will clear any existing overlay.
+            text: overlayText, 
+            // Position and size can be added here if you want UI controls for them
+            // position: 'top', 
+            // size: 'medium'
+        };
+    } else {
+        // If disabled, explicitly send an empty text to ensure it's cleared on the server.
+        textTransforms.text_overlay = { text: "" };
+    }
+    
+    // SEND THE COMBINED PAYLOAD
+    onTransformLayout({
+        ...layoutPayload,
+        transforms: textTransforms,
+    });
   };
 
-  const labelClass = "mb-2 block text-sm text-black dark:text-white";
-  const selectClass = "relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-2 px-4 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input";
-  const buttonClass = "flex justify-center rounded bg-primary py-2 px-4 font-medium text-white hover:bg-opacity-90";
-  const secondaryButtonClass = `${buttonClass} bg-graydark`;
-
   return (
-    <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {/* Layout Dropdown */}
-        <div>
-          <label className={labelClass}>Host Layout</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={layout} onChange={(e) => setLayout(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              {Object.keys(availableLayouts).map(layoutKey => (
-                <option key={layoutKey} value={layoutKey}>{layoutKey}</option>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* ... (Existing Layout Selects - Host, Guest, or Single) ... */}
+
+      {isLecture ? (
+        // ... Host/Guest Layout Selects ...
+        <>
+          <div>
+            <label className="block mb-2 font-medium">Host Layout</label>
+            <select
+              value={hostLayout}
+              onChange={(e) => setHostLayout(e.target.value)}
+              className="w-full border rounded p-2"
+            >
+              <option value="">Select host layout</option>
+              {availableLayouts.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
               ))}
             </select>
           </div>
-        </div>
 
-        {/* NEW: Guest Layout Dropdown */}
-        <div>
-          <label className={labelClass}>Guest Layout (Virtual Auditorium Only)</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={guestLayout} onChange={(e) => setGuestLayout(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              {Object.keys(availableLayouts).map(layoutKey => (
-                <option key={layoutKey} value={layoutKey}>{layoutKey}</option>
+          <div>
+            <label className="block mb-2 font-medium">Guest Layout</label>
+            <select
+              value={guestLayout}
+              onChange={(e) => setGuestLayout(e.target.value)}
+              className="w-full border rounded p-2"
+            >
+              <option value="">Select guest layout</option>
+              {availableLayouts.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
               ))}
             </select>
           </div>
-        </div>
-        
-        {/* Text Overlay Dropdown */}
+        </>
+      ) : (
+        // ... Single Layout Select ...
         <div>
-          <label className={labelClass}>Text Overlay</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={enableOverlayText} onChange={(e) => setEnableOverlayText(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </div>
+          <label className="block mb-2 font-medium">Layout</label>
+          <select
+            value={layout}
+            onChange={(e) => setLayout(e.target.value)}
+            className="w-full border rounded p-2"
+          >
+            <option value="">Select layout</option>
+            {availableLayouts.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
         </div>
+      )}
 
-        {/* Active Speaker Dropdown */}
-        <div>
-          <label className={labelClass}>Active Speaker</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={activeSpeaker} onChange={(e) => setActiveSpeaker(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </div>
+      {/* NEW TEXT OVERLAY CONTROLS */}
+      <div className="border-t pt-4 space-y-3">
+        <h4 className="font-semibold">Text Overlay</h4>
+        <div className="flex items-center">
+            <input
+                type="checkbox"
+                id="enableText"
+                checked={isTextEnabled}
+                onChange={(e) => setIsTextEnabled(e.target.checked)}
+                className="mr-2"
+            />
+            <label htmlFor="enableText" className="font-medium text-sm">Enable Overlay Text</label>
         </div>
-
-        {/* Streaming Indicator Dropdown */}
-        <div>
-          <label className={labelClass}>Streaming Indicator</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={streamingIndicator} onChange={(e) => setStreamingIndicator(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Recording Indicator Dropdown */}
-        <div>
-          <label className={labelClass}>Recording Indicator</label>
-          <div className="relative z-20 bg-transparent dark:bg-form-input">
-            <select value={recordingIndicator} onChange={(e) => setRecordingIndicator(e.target.value)} className={selectClass}>
-              <option value="">Unset</option>
-              <option value="on">On</option>
-              <option value="off">Off</option>
-            </select>
-          </div>
-        </div>
+        <input
+          type="text"
+          value={overlayText}
+          onChange={(e) => setOverlayText(e.target.value)}
+          placeholder="Enter message (e.g., Q&A is now open)"
+          className="w-full border rounded p-2 text-black"
+          disabled={!isTextEnabled}
+        />
       </div>
-      
-      <div className="flex gap-4 mt-4">
-        <button type="button" onClick={handleSubmit} className={buttonClass}>Transform Layout</button>
-        <button type="button" onClick={onResetLayout} className={secondaryButtonClass}>Reset Transformation</button>
+
+
+      {/* ... (Buttons) ... */}
+      <div className="flex space-x-2">
+        <button
+          type="submit"
+          className="flex-1 rounded bg-primary p-2 text-white hover:bg-opacity-90"
+        >
+          Apply Layout & Text
+        </button>
+        <button
+          type="button"
+          onClick={onResetLayout}
+          className="flex-1 rounded bg-graydark p-2 text-white hover:bg-opacity-90"
+        >
+          Reset
+        </button>
       </div>
-    </div>
+    </form>
   );
 };
 
