@@ -10,7 +10,7 @@ import Presentation from './components/conference/Presentation';
 import DialOutForm from './components/conference/DialOutForm';
 import PinningConfigForm from './components/conference/PinningConfigForm';
 import TransformLayoutForm from './components/conference/TransformLayoutForm';
-import TextOverlayControls from './components/conference/TextOverlayControls'; // leaving this out for now
+// import TextOverlayControls from './components/conference/TextOverlayControls'; // leaving this out for now
 
 import useConference from './hooks/useConference';
 

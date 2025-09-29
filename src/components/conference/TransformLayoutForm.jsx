@@ -118,29 +118,6 @@ const TransformLayoutForm = ({
         </div>
       )}
 
-      {/* NEW TEXT OVERLAY CONTROLS */}
-      <div className="border-t pt-4 space-y-3">
-        <h4 className="font-semibold">Text Overlay</h4>
-        <div className="flex items-center">
-            <input
-                type="checkbox"
-                id="enableText"
-                checked={isTextEnabled}
-                onChange={(e) => setIsTextEnabled(e.target.checked)}
-                className="mr-2"
-            />
-            <label htmlFor="enableText" className="font-medium text-sm">Enable Overlay Text</label>
-        </div>
-        <input
-          type="text"
-          value={overlayText}
-          onChange={(e) => setOverlayText(e.target.value)}
-          placeholder="Enter message (e.g., Q&A is now open)"
-          className="w-full border rounded p-2 text-black"
-          disabled={!isTextEnabled}
-        />
-      </div>
-
 
       {/* ... (Buttons) ... */}
       <div className="flex space-x-2">
@@ -148,7 +125,7 @@ const TransformLayoutForm = ({
           type="submit"
           className="flex-1 rounded bg-primary p-2 text-white hover:bg-opacity-90"
         >
-          Apply Layout & Text
+          Apply Layout
         </button>
         <button
           type="button"

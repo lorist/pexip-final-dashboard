@@ -344,15 +344,15 @@ export default function useConference() {
     // }
 
     // Process Text Overlays (Merge with existing cleanTransforms)
-    if (transforms && transforms.text_overlay) {
-      if (typeof transforms.text_overlay.text === "string" && transforms.text_overlay.text.trim() !== "") {
-        cleanTransforms.text_overlay = {
-          text: transforms.text_overlay.text,
-          position: transforms.text_overlay.position || "top",
-          size: transforms.text_overlay.size || "medium",
-        };
-      }
-    }
+    // if (transforms && transforms.text_overlay) {
+    //   if (typeof transforms.text_overlay.text === "string" && transforms.text_overlay.text.trim() !== "") {
+    //     cleanTransforms.text_overlay = {
+    //       text: transforms.text_overlay.text,
+    //       position: transforms.text_overlay.position || "top",
+    //       size: transforms.text_overlay.size || "medium",
+    //     };
+    //   }
+    // }
 
     // FINAL CRITICAL STEP: Add cleanTransforms (which holds the layout and/or text) 
     // to the body under the 'transforms' key.
